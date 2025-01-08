@@ -35,13 +35,13 @@ RUN curl -o glpi.tgz -SL https://github.com/glpi-project/glpi/releases/download/
     && tar -xzf glpi.tgz --strip-components=1 \
     && rm glpi.tgz
 
-COPY php.ini /usr/local/etc/php/
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY conf/php.ini /usr/local/etc/php/
+COPY conf/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN a2enmod rewrite
-COPY ./glpi-apache.conf /etc/apache2/sites-available/000-default.conf
+COPY conf/glpi-apache.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
 

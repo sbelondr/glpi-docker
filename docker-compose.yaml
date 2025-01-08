@@ -1,11 +1,6 @@
-version: '3.8'
-
 services:
   glpi:
     image: sbelondrade/glpi:10.0.17
-    #build:
-    #  context: .
-    #  dockerfile: Dockerfile
     container_name: glpi
     ports:
       - "8080:80"
@@ -35,10 +30,9 @@ services:
       MYSQL_PASSWORD: glpi_password
     volumes:
       - mariadb_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
 
 volumes:
   glpi_data:
   mariadb_data:
-
