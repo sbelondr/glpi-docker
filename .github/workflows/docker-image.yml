@@ -23,11 +23,27 @@ jobs:
           docker build -t sbelondrade/glpi:${{ env.TAG_VERSION }} .
           docker build -t sbelondrade/glpi:latest .
 
+      - name: Save rendezvous
+        run: docker save -o glpi.tar sbelondrade/glpi:latest
+      
+      - name: Run Trivy vulnerability scanner in tarball mode of rendez vous image
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          input: /github/workspace/glpi.tar
+          severity: 'CRITICAL,HIGH'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
       - name: Push Docker Image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker login -u=${DOCKER_USERNAME} -p=${DOCKER_PASSWORD}
           docker push sbelondrade/glpi:${{ env.TAG_VERSION }}
           docker push sbelondrade/glpi:latest
