@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  glpi:
+    image: sbelondrade/glpi:10.0.17
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile
+    container_name: glpi
+    ports:
+      - "8080:80"
+    depends_on:
+      - mariadb
+    environment:
+      - GLPI_DB_HOST=mariadb
+      - GLPI_DB_PORT=3306
+      - GLPI_DB_NAME=glpi
+      - GLPI_DB_USER=glpi
+      - GLPI_DB_PASSWORD=glpi_password
+      - GLPI_USER_GLPI_PASSWORD=glpi_password
+      - GLPI_USER_POST_PASSWORD=post_password
+      - GLPI_USER_TECH_PASSWORD=tech_password
+      - GLPI_USER_NORMAL_PASSWORD=normal_password
+    volumes:
+      - glpi_data:/var/www/html
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11.6.2
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: glpi
+      MYSQL_USER: glpi
+      MYSQL_PASSWORD: glpi_password
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+volumes:
+  glpi_data:
+  mariadb_data:
+
