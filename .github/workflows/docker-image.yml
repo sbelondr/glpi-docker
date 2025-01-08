@@ -1,0 +1,33 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set version tag
+        id: version
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Build Docker Image
+        run: |
+          cd docker
+          docker build -t sbelondrade/glpi:${{ env.TAG_VERSION }} .
+          docker build -t sbelondrade/glpi:latest .
+
+      - name: Push Docker Image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker push sbelondrade/glpi:${{ env.TAG_VERSION }}
+          docker push sbelondrade/glpi:latest
